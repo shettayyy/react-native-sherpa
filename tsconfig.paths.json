@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    // `baseUrl` is deprecated in TS 6 but required here because @expo/cli's Metro resolver
+    // calls `path.join(baseUrl, pathEntry)` to resolve aliases at runtime — it does not fall
+    // back to `pathsBasePath` (the TS 6 replacement). Without this, all path aliases silently
+    // fail to resolve. Remove once Expo updates its tsconfig resolver to use `pathsBasePath`.
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "paths": {
+      "react-native-sherpa": ["./src/index"],
+      "@sherpa/components": ["./src/components"],
+      "@sherpa/contexts": ["./src/contexts"],
+      "@sherpa/hooks": ["./src/hooks"],
+      "@sherpa/types": ["./src/types"],
+      "@sherpa/utilities": ["./src/utilities"],
+      "@features/*": ["./example/features/*"],
+      "@shared/*": ["./example/shared/*"]
+    }
+  }
+}
