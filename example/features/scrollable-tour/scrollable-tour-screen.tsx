@@ -61,6 +61,7 @@ export function ScrollableTourScreen() {
     );
     const centeredY = y - scrollHeightRef.current / 2 + height / 2;
     scrollRef.current?.scrollTo({ y: Math.max(0, centeredY), animated: true });
+    // Wait for the animated scroll to settle before the tour measures the target's final position.
     await delay(350);
   });
 
