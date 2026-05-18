@@ -21,6 +21,10 @@ import {
   StepRegistryContext,
   type StepRegistry,
 } from './step-registry-context';
+import {
+  ScrollAdapterContext,
+  type ScrollAdapterRegistry,
+} from './scroll-adapter-context';
 import { tourReducer, INITIAL_STATE } from './tour-reducer';
 
 type TourProviderComponentProps = Readonly<TourProviderProps> & {
@@ -41,6 +45,7 @@ export function TourProvider({
 
   const [state, dispatch] = useReducer(tourReducer, INITIAL_STATE);
   const registryRef = useRef<StepRegistry>(new Map());
+  const scrollAdapterRegistryRef = useRef<ScrollAdapterRegistry>(new Map());
   const [activeMeasurement, setActiveMeasurement] =
     useState<ElementMeasurement | null>(null);
   const [activeStep, setActiveStep] = useState<StepRegistration | null>(null);
@@ -78,6 +83,12 @@ export function TourProvider({
     let cancelled = false;
 
     const measure = async () => {
+      const adapter = scrollAdapterRegistryRef.current.get(
+        state.activeTourId ?? ''
+      );
+      if (adapter) {
+        await adapter(step.name, step.viewRef);
+      }
       const measurement = await step.measureFn();
       if (!cancelled) {
         setActiveStep(step);
@@ -118,19 +129,21 @@ export function TourProvider({
     <TourStateContext value={state}>
       <TourDispatchContext value={dispatch}>
         <StepRegistryContext value={registryRef}>
-          {children}
-          {activeMeasurement !== null && activeStep !== null && (
-            <Overlay
-              measurement={activeMeasurement}
-              currentStep={activeStep}
-              status={state.status}
-              stepIndex={state.currentStepIndex}
-              totalSteps={state.totalSteps}
-              OverlayComponent={overlay}
-              TooltipComponent={tooltip}
-              theme={resolvedTheme}
-            />
-          )}
+          <ScrollAdapterContext value={scrollAdapterRegistryRef}>
+            {children}
+            {activeMeasurement !== null && activeStep !== null && (
+              <Overlay
+                measurement={activeMeasurement}
+                currentStep={activeStep}
+                status={state.status}
+                stepIndex={state.currentStepIndex}
+                totalSteps={state.totalSteps}
+                OverlayComponent={overlay}
+                TooltipComponent={tooltip}
+                theme={resolvedTheme}
+              />
+            )}
+          </ScrollAdapterContext>
         </StepRegistryContext>
       </TourDispatchContext>
     </TourStateContext>

@@ -1,7 +1,13 @@
-import { useState } from 'react';
+import { useRef, useState, type ComponentRef } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TourStep, useTourActions } from 'react-native-sherpa';
+import {
+  TourStep,
+  useTourActions,
+  useTourScrollAdapter,
+  measureLayout,
+  delay,
+} from 'react-native-sherpa';
 
 import { Button } from '@shared/components/button';
 import { colors, spacing, typography } from '@shared/styles';
@@ -45,10 +51,28 @@ export function ScrollableTourScreen() {
   const insets = useSafeAreaInsets();
   const { start } = useTourActions();
   const [activeFilter, setActiveFilter] = useState('All');
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
+  const scrollHeightRef = useRef(0);
+
+  useTourScrollAdapter(TOUR_ID, async (_, viewRef) => {
+    const { y, height } = await measureLayout(
+      viewRef.current,
+      scrollRef.current
+    );
+    const centeredY = y - scrollHeightRef.current / 2 + height / 2;
+    scrollRef.current?.scrollTo({ y: Math.max(0, centeredY), animated: true });
+    await delay(350);
+  });
 
   return (
     <View style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={styles.container}
+        onLayout={(e) => {
+          scrollHeightRef.current = e.nativeEvent.layout.height;
+        }}
+      >
         <PromoBanner tourId={TOUR_ID} />
 
         <View style={styles.section}>

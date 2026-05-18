@@ -52,6 +52,7 @@ export function useTourStep({
       tooltipPlacement,
       content,
       metadata,
+      viewRef: ref,
       measureFn: () => {
         const target = ref.current;
         if (__DEV__ && target === null) {

@@ -1,4 +1,5 @@
-import type { ImageSourcePropType, TextStyle } from 'react-native';
+import type { ImageSourcePropType, TextStyle, View } from 'react-native';
+import type { ComponentRef, RefObject } from 'react';
 
 import type {
   InteractionMode,
@@ -66,6 +67,8 @@ export type StepRegistration = {
   tourId: string;
   order: number;
   measureFn: () => Promise<ElementMeasurement>;
+  /** Ref to the TourStep's underlying View — passed to scroll adapters for measureLayout. */
+  viewRef: RefObject<ComponentRef<typeof View> | null>;
   interactionMode: InteractionMode;
   maskShape?: MaskShape;
   maskPadding?: number;

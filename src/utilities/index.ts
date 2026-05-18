@@ -1,4 +1,6 @@
 export { measureInWindow } from './measure-in-window';
+export { measureLayout } from './measure-layout';
+export { delay } from './delay';
 export { buildSvgPath } from './build-svg-path';
 export type { BuildSvgPathParams } from './build-svg-path';
 export { resolvePointerEvents } from './resolve-pointer-events';

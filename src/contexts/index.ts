@@ -5,3 +5,8 @@ export {
   StepRegistryContext,
   type StepRegistry,
 } from './step-registry-context';
+export {
+  ScrollAdapterContext,
+  type ScrollAdapterFn,
+  type ScrollAdapterRegistry,
+} from './scroll-adapter-context';
