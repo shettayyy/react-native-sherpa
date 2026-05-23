@@ -1,4 +1,4 @@
-import { Modal, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import type {
   OverlayProps,
@@ -47,31 +47,23 @@ function DefaultOverlay({
   };
 
   return (
-    <Modal
-      visible
-      transparent
-      animationType="none"
-      statusBarTranslucent
-      onRequestClose={dismiss}
-    >
-      <View style={StyleSheet.absoluteFill} pointerEvents={pointerEvents}>
-        <AnimatedMask
-          measurement={measurement}
-          currentStep={currentStep}
-          status={status}
-          canvasWidth={canvasWidth}
-          canvasHeight={canvasHeight}
-          overlayColor={overlayColor}
-          overlayOpacity={overlayOpacity}
-          theme={theme}
-        />
-        {CustomTooltip === undefined ? (
-          <Tooltip {...tooltipProps} />
-        ) : (
-          <CustomTooltip {...tooltipProps} />
-        )}
-      </View>
-    </Modal>
+    <View style={StyleSheet.absoluteFill} pointerEvents={pointerEvents}>
+      <AnimatedMask
+        measurement={measurement}
+        currentStep={currentStep}
+        status={status}
+        canvasWidth={canvasWidth}
+        canvasHeight={canvasHeight}
+        overlayColor={overlayColor}
+        overlayOpacity={overlayOpacity}
+        theme={theme}
+      />
+      {CustomTooltip === undefined ? (
+        <Tooltip {...tooltipProps} />
+      ) : (
+        <CustomTooltip {...tooltipProps} />
+      )}
+    </View>
   );
 }
 
@@ -93,7 +85,7 @@ export function Overlay({
   TooltipComponent: CustomTooltip,
   theme,
 }: Readonly<OverlayContainerProps>) {
-  if (status !== 'running' && status !== 'paused') {
+  if (status !== 'running' && status !== 'transitioning') {
     return null;
   }
 
