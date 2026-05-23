@@ -1,17 +1,17 @@
 # react-native-sherpa
 
-The Swiss Army knife of in-app guidance for React Native. Single-package, single API -- works with Expo, bare React Native, and React Native Web.
+In-app tour and onboarding library for React Native. Works with Expo, bare React Native, and React Native Web.
 
-## Features
+## What it does
 
-- Linear and multi-step tours with spotlight and tooltip
-- SVG mask overlay with animated hole (spring transition between steps)
-- Beacon pulse animation on each step
-- Auto-placement tooltip (top, bottom, left, right) with per-step override
-- Swappable overlay and tooltip components
+- Multi-step tours with a spotlight overlay and tooltip
+- Animated SVG mask with spring transitions between steps
+- Beacon pulse on each step target
+- Tooltip auto-placement (top, bottom, left, right) with per-step override
+- Custom overlay and tooltip support
 - Reanimated 3 animations with `useReducedMotion()` support
 - Type-safe tour and step names via module augmentation
-- Multiple independent tours with a tour queue
+- Multiple independent tours with a queue
 - 100% TypeScript strict mode
 
 ## Installation
@@ -24,29 +24,15 @@ yarn add react-native-sherpa
 
 ### Peer dependencies
 
-Install the required peer dependencies alongside the library:
-
 ```sh
 npm install react-native-reanimated react-native-svg react-native-worklets
 ```
 
-Follow the setup guides for each:
+Setup guides:
 
-- [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started/) -- add the Babel plugin as the **last** entry in `babel.config.js`
+- [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started/)
 - [react-native-svg](https://github.com/software-mansion/react-native-svg)
 - [react-native-worklets](https://github.com/margelo/react-native-worklets)
-
-**Important:** `react-native-worklets/plugin` must be the last plugin in your `babel.config.js`. Sherpa will log a clear error in dev mode if the plugin is missing.
-
-```js
-module.exports = {
-  presets: ['babel-preset-expo'],
-  plugins: [
-    // ... other plugins
-    'react-native-worklets/plugin',
-  ],
-};
-```
 
 ---
 
@@ -54,7 +40,7 @@ module.exports = {
 
 ### 1. Wrap your app with `TourProvider`
 
-Place `TourProvider` as high as possible in your tree -- typically in your root layout. Every screen inside it can register steps and start tours.
+Put `TourProvider` near the root of your tree. Any screen inside it can register steps and start tours.
 
 ```tsx
 import { TourProvider } from 'react-native-sherpa';
@@ -68,9 +54,9 @@ export default function RootLayout() {
 }
 ```
 
-### 2. Declare your tours (optional but recommended)
+### 2. Register your tours (optional but recommended)
 
-Module augmentation gives you type-safe tour IDs and step names. Create a `sherpa-registry.d.ts` anywhere in your project:
+Module augmentation lets TypeScript catch typos in tour IDs and step names. Add a `sherpa-registry.d.ts` anywhere in your project:
 
 ```ts
 import 'react-native-sherpa';
@@ -84,11 +70,11 @@ declare module 'react-native-sherpa' {
 }
 ```
 
-With this in place, `start('typo-tour')` is a TypeScript error. The file is optional -- without it, `tourId` and `name` accept any string.
+With this in place, `start('typo-tour')` is a TypeScript error. Without it, `tourId` and `name` accept any string.
 
 ### 3. Mark elements as tour steps
 
-Wrap any element with `<TourStep>`. The child is measured automatically -- no refs required.
+Wrap any element with `<TourStep>`. Measurements are handled automatically -- no refs needed.
 
 ```tsx
 import { TourStep } from 'react-native-sherpa';
@@ -111,11 +97,11 @@ function ProfileHeader() {
 }
 ```
 
-Steps can live in any component in the tree -- they register themselves with `TourProvider` automatically.
+Steps can be in any component in the tree. They register themselves with `TourProvider` on mount.
 
 ### 4. Start a tour
 
-Use `useTourActions()` anywhere inside `TourProvider`:
+Call `start` from `useTourActions()` anywhere inside `TourProvider`:
 
 ```tsx
 import { useTourActions } from 'react-native-sherpa';
@@ -132,24 +118,24 @@ function StartButton() {
 
 ### `TourProvider` props
 
-| Prop | Type | Description |
-|---|---|---|
-| `theme` | `Partial<SherpaTheme>` | Override default light theme tokens |
-| `overlay` | `OverlayComponent` | Replace the default SVG overlay entirely |
-| `tooltip` | `TooltipComponent` | Replace the default tooltip entirely |
-| `onTourStart` | `(event: TourStartEvent) => void` | Called when a tour starts |
+| Prop             | Type                                 | Description                              |
+| ---------------- | ------------------------------------ | ---------------------------------------- |
+| `theme`          | `Partial<SherpaTheme>`               | Override default light theme tokens      |
+| `overlay`        | `OverlayComponent`                   | Replace the default SVG overlay          |
+| `tooltip`        | `TooltipComponent`                   | Replace the default tooltip              |
+| `onTourStart`    | `(event: TourStartEvent) => void`    | Called when a tour starts                |
 | `onTourComplete` | `(event: TourCompleteEvent) => void` | Called when a tour reaches the last step |
-| `onTourSkip` | `(event: TourSkipEvent) => void` | Called when a tour is skipped |
-| `onTourDismiss` | `(event: TourDismissEvent) => void` | Called when a tour is dismissed early |
-| `onStepEnter` | `(event: StepEnterEvent) => void` | Called when a step becomes active |
-| `onStepExit` | `(event: StepExitEvent) => void` | Called when leaving a step |
-| `onStepSkip` | `(event: StepSkipEvent) => void` | Called when a step is skipped |
-| `onStepAction` | `(event: StepActionEvent) => void` | Called on step-level actions |
+| `onTourSkip`     | `(event: TourSkipEvent) => void`     | Called when a tour is skipped            |
+| `onTourDismiss`  | `(event: TourDismissEvent) => void`  | Called when a tour is dismissed early    |
+| `onStepEnter`    | `(event: StepEnterEvent) => void`    | Called when a step becomes active        |
+| `onStepExit`     | `(event: StepExitEvent) => void`     | Called when leaving a step               |
+| `onStepSkip`     | `(event: StepSkipEvent) => void`     | Called when a step is skipped            |
+| `onStepAction`   | `(event: StepActionEvent) => void`   | Called on step-level actions             |
 
 ### `TourStep` props
 
 | Prop | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | `tourId` | `RegisteredTourId` | Which tour this step belongs to |
 | `name` | `RegisteredStepName` | Unique name within the tour |
 | `order` | `number` | Position in the sequence (ascending) |
@@ -166,15 +152,15 @@ function StartButton() {
 
 ```ts
 const {
-  start,    // (tourId) => void
-  next,     // () => void
-  prev,     // () => void
-  goTo,     // (indexOrName) => void
-  pause,    // () => void
-  resume,   // () => void
-  dismiss,  // () => void
-  reset,    // (tourId?) => void
-  enqueue,  // (tourId) => void
+  start,   // (tourId) => void
+  next,    // () => void
+  prev,    // () => void
+  goTo,    // (indexOrName) => void
+  pause,   // () => void
+  resume,  // () => void
+  dismiss, // () => void
+  reset,   // (tourId?) => void
+  enqueue, // (tourId) => void
 } = useTourActions();
 ```
 
@@ -192,7 +178,7 @@ const {
 
 ### `SherpaTheme`
 
-Pass a partial theme to `TourProvider` to override any tokens. Unspecified tokens fall back to defaults.
+Pass a partial theme to `TourProvider` to override tokens. Anything not specified falls back to the defaults.
 
 ```ts
 type SherpaTheme = {
@@ -202,11 +188,11 @@ type SherpaTheme = {
   };
   tooltip: {
     backgroundColor: string; // default '#FFFFFF'
-    textColor: string;       // default '#000000'
-    borderRadius: number;    // default 8
-    padding: number;         // default 16
-    titleFontSize: number;   // default 16
-    bodyFontSize: number;    // default 14
+    textColor: string;        // default '#000000'
+    borderRadius: number;     // default 8
+    padding: number;          // default 16
+    titleFontSize: number;    // default 16
+    bodyFontSize: number;     // default 14
   };
   beacon: {
     color: string;   // default '#FFFFFF'
@@ -215,7 +201,7 @@ type SherpaTheme = {
 };
 ```
 
-Example -- dark overlay with a colored tooltip:
+Example with a dark overlay and custom tooltip background:
 
 ```tsx
 <TourProvider
@@ -230,7 +216,7 @@ Example -- dark overlay with a colored tooltip:
 
 ## Custom tooltip
 
-Pass a `tooltip` component to `TourProvider` to replace the default tooltip entirely:
+Pass a `tooltip` prop to `TourProvider` to replace the default tooltip:
 
 ```tsx
 import type { TooltipProps } from 'react-native-sherpa';
@@ -246,23 +232,23 @@ function MyTooltip({
   return (
     <View style={styles.tooltip}>
       <Text>{currentStep.content?.title}</Text>
-      <Text>{stepIndex + 1} / {totalSteps}</Text>
+      <Text>
+        {stepIndex + 1} / {totalSteps}
+      </Text>
       <Button onPress={onNext} label="Next" />
       <Button onPress={onDismiss} label="Skip" />
     </View>
   );
 }
 
-<TourProvider tooltip={MyTooltip}>
-  {/* ... */}
-</TourProvider>
+<TourProvider tooltip={MyTooltip}>{/* ... */}</TourProvider>;
 ```
 
 ---
 
-## Controlling tours from outside the tree
+## Triggering tours from outside React
 
-`useTourActions()` works inside any component descendant of `TourProvider`. For cases where you need to trigger a tour from outside React -- a push notification handler, a native callback -- pass a `ref` to `TourProvider`:
+`useTourActions()` works inside any component that's a descendant of `TourProvider`. If you need to trigger a tour from outside React (a push notification handler, a native module callback, etc.), pass a `ref` to `TourProvider`:
 
 ```tsx
 import { useRef } from 'react';
@@ -288,13 +274,13 @@ export default function App() {
 }
 ```
 
-The handle exposes: `start`, `next`, `prev`, `goTo`, `pause`, `resume`, `dismiss`, `reset`, `enqueue`.
+The ref exposes the same methods as `useTourActions()`: `start`, `next`, `prev`, `goTo`, `pause`, `resume`, `dismiss`, `reset`, `enqueue`.
 
 ---
 
 ## Contributing
 
-See [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for the development workflow and how to send a pull request.
+See [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for the development workflow.
 
 ## License
 
