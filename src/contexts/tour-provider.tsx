@@ -62,7 +62,10 @@ export function TourProvider({
   }, [state.status, state.queue]);
 
   useEffect(() => {
-    if (state.status !== 'running' || state.activeTourId === null) {
+    if (
+      (state.status !== 'running' && state.status !== 'transitioning') ||
+      state.activeTourId === null
+    ) {
       return;
     }
 
@@ -81,6 +84,7 @@ export function TourProvider({
     }
 
     let cancelled = false;
+    const isResuming = state.status === 'transitioning';
 
     const measure = async () => {
       const adapter = scrollAdapterRegistryRef.current.get(
@@ -93,10 +97,16 @@ export function TourProvider({
       if (!cancelled) {
         setActiveStep(step);
         setActiveMeasurement(measurement);
+
+        if (isResuming) {
+          dispatch({ type: 'FINISH_TRANSITION' });
+        }
       }
     };
 
-    measure().catch(() => {});
+    measure().catch((error) => {
+      if (__DEV__) console.warn('[sherpa] measure failed:', error);
+    });
 
     return () => {
       cancelled = true;
@@ -114,15 +124,30 @@ export function TourProvider({
       start: (tourId) => dispatch({ type: 'START_TOUR', tourId }),
       next: () => dispatch({ type: 'NEXT_STEP' }),
       prev: () => dispatch({ type: 'PREV_STEP' }),
-      goTo: (stepIndexOrName) =>
-        dispatch({ type: 'GO_TO_STEP', indexOrName: stepIndexOrName }),
+      goTo: (stepIndexOrName) => {
+        if (typeof stepIndexOrName === 'number') {
+          dispatch({ type: 'GO_TO_STEP', index: stepIndexOrName });
+          return;
+        }
+        const steps = [...registryRef.current.values()]
+          .filter((s) => s.tourId === state.activeTourId)
+          .sort((a, b) => a.order - b.order);
+        const index = steps.findIndex((s) => s.name === stepIndexOrName);
+        if (index !== -1) {
+          dispatch({ type: 'GO_TO_STEP', index });
+        } else if (__DEV__) {
+          console.warn(
+            `[Sherpa] goTo: step "${String(stepIndexOrName)}" not found in tour "${state.activeTourId}".`
+          );
+        }
+      },
       pause: () => dispatch({ type: 'PAUSE_TOUR' }),
       resume: () => dispatch({ type: 'RESUME_TOUR' }),
       dismiss: () => dispatch({ type: 'DISMISS_TOUR' }),
       reset: (tourId) => dispatch({ type: 'RESET_TOUR', tourId }),
       enqueue: (tourId) => dispatch({ type: 'ENQUEUE_TOUR', tourId }),
     }),
-    []
+    [state.activeTourId]
   );
 
   return (

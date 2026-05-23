@@ -35,13 +35,9 @@ function handlePrevStep(state: TourState): TourState {
   return { ...state, currentStepIndex: state.currentStepIndex - 1 };
 }
 
-function handleGoToStep(
-  state: TourState,
-  indexOrName: number | string
-): TourState {
-  if (state.status !== 'running' || typeof indexOrName !== 'number')
-    return state;
-  const clamped = Math.max(0, Math.min(indexOrName, state.totalSteps - 1));
+function handleGoToStep(state: TourState, index: number): TourState {
+  if (state.status !== 'running') return state;
+  const clamped = Math.max(0, Math.min(index, state.totalSteps - 1));
   return { ...state, currentStepIndex: clamped };
 }
 
@@ -77,7 +73,7 @@ export function tourReducer(state: TourState, action: TourAction): TourState {
       return handlePrevStep(state);
     }
     case 'GO_TO_STEP': {
-      return handleGoToStep(state, action.indexOrName);
+      return handleGoToStep(state, action.index);
     }
     case 'PAUSE_TOUR': {
       return state.status === 'running'
@@ -86,6 +82,11 @@ export function tourReducer(state: TourState, action: TourAction): TourState {
     }
     case 'RESUME_TOUR': {
       return state.status === 'paused'
+        ? { ...state, status: 'transitioning' }
+        : state;
+    }
+    case 'FINISH_TRANSITION': {
+      return state.status === 'transitioning'
         ? { ...state, status: 'running' }
         : state;
     }

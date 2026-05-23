@@ -74,7 +74,7 @@ export type TourAction =
   | { type: 'SET_TOTAL_STEPS'; totalSteps: number }
   | { type: 'NEXT_STEP' }
   | { type: 'PREV_STEP' }
-  | { type: 'GO_TO_STEP'; indexOrName: number | string }
+  | { type: 'GO_TO_STEP'; index: number }
   | { type: 'PAUSE_TOUR' }
   | { type: 'RESUME_TOUR' }
   | { type: 'FINISH_TRANSITION' }

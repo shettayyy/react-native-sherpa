@@ -68,7 +68,7 @@ export function useOverlayAnimation({
 
   // Animate backdrop in/out based on status
   useEffect(() => {
-    const isVisible = status === 'running' || status === 'paused';
+    const isVisible = status === 'running' || status === 'transitioning';
     backdropOpacity.value = withTiming(isVisible ? 1 : 0, { duration });
   }, [status, backdropOpacity, duration]);
 

@@ -8,6 +8,7 @@ const TOUR_B = 'tour-b';
 
 const STATUS_RUNNING = 'running' as const;
 const STATUS_PAUSED = 'paused' as const;
+const STATUS_TRANSITIONING = 'transitioning' as const;
 const STATUS_COMPLETED = 'completed' as const;
 const STATUS_DISMISSED = 'dismissed' as const;
 
@@ -110,40 +111,23 @@ describe('tourReducer', () => {
 
   describe('GO_TO_STEP', () => {
     it('jumps to a valid index', () => {
-      const next = tourReducer(runningState, {
-        type: 'GO_TO_STEP',
-        indexOrName: 2,
-      });
+      const next = tourReducer(runningState, { type: 'GO_TO_STEP', index: 2 });
       expect(next.currentStepIndex).toBe(2);
     });
 
     it('clamps to last step when index exceeds bounds', () => {
-      const next = tourReducer(runningState, {
-        type: 'GO_TO_STEP',
-        indexOrName: 99,
-      });
+      const next = tourReducer(runningState, { type: 'GO_TO_STEP', index: 99 });
       expect(next.currentStepIndex).toBe(2);
     });
 
     it('clamps to 0 when index is negative', () => {
-      const next = tourReducer(runningState, {
-        type: 'GO_TO_STEP',
-        indexOrName: -5,
-      });
+      const next = tourReducer(runningState, { type: 'GO_TO_STEP', index: -5 });
       expect(next.currentStepIndex).toBe(0);
-    });
-
-    it('is a no-op for name-based navigation', () => {
-      const next = tourReducer(runningState, {
-        type: 'GO_TO_STEP',
-        indexOrName: 'some-step',
-      });
-      expect(next).toBe(runningState);
     });
 
     it(IGNORES_WHEN_NOT_RUNNING, () => {
       const state: TourState = { ...runningState, status: STATUS_PAUSED };
-      const next = tourReducer(state, { type: 'GO_TO_STEP', indexOrName: 1 });
+      const next = tourReducer(state, { type: 'GO_TO_STEP', index: 1 });
       expect(next).toBe(state);
     });
   });
@@ -162,14 +146,30 @@ describe('tourReducer', () => {
   });
 
   describe('RESUME_TOUR', () => {
-    it('resumes when paused', () => {
+    it('transitions to transitioning when paused', () => {
       const state: TourState = { ...runningState, status: STATUS_PAUSED };
       const next = tourReducer(state, { type: 'RESUME_TOUR' });
-      expect(next.status).toBe(STATUS_RUNNING);
+      expect(next.status).toBe(STATUS_TRANSITIONING);
     });
 
     it('ignores when not paused', () => {
       const next = tourReducer(runningState, { type: 'RESUME_TOUR' });
+      expect(next).toBe(runningState);
+    });
+  });
+
+  describe('FINISH_TRANSITION', () => {
+    it('moves to running when transitioning', () => {
+      const state: TourState = {
+        ...runningState,
+        status: STATUS_TRANSITIONING,
+      };
+      const next = tourReducer(state, { type: 'FINISH_TRANSITION' });
+      expect(next.status).toBe(STATUS_RUNNING);
+    });
+
+    it('ignores when not transitioning', () => {
+      const next = tourReducer(runningState, { type: 'FINISH_TRANSITION' });
       expect(next).toBe(runningState);
     });
   });

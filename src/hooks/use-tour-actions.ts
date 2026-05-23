@@ -2,9 +2,13 @@ import { useContext, useCallback } from 'react';
 
 import type { RegisteredTourId, RegisteredStepName } from '@sherpa/types';
 import { TourDispatchContext } from '../contexts/tour-dispatch-context';
+import { StepRegistryContext } from '../contexts/step-registry-context';
+import { TourStateContext } from '../contexts/tour-state-context';
 
 export function useTourActions() {
   const dispatch = useContext(TourDispatchContext);
+  const registryRef = useContext(StepRegistryContext);
+  const { activeTourId } = useContext(TourStateContext);
 
   const start = useCallback(
     (tourId: RegisteredTourId) => {
@@ -23,9 +27,23 @@ export function useTourActions() {
 
   const goTo = useCallback(
     (stepIndexOrName: number | RegisteredStepName<RegisteredTourId>) => {
-      dispatch({ type: 'GO_TO_STEP', indexOrName: stepIndexOrName });
+      if (typeof stepIndexOrName === 'number') {
+        dispatch({ type: 'GO_TO_STEP', index: stepIndexOrName });
+        return;
+      }
+      const steps = [...registryRef.current.values()]
+        .filter((s) => s.tourId === activeTourId)
+        .sort((a, b) => a.order - b.order);
+      const index = steps.findIndex((s) => s.name === stepIndexOrName);
+      if (index !== -1) {
+        dispatch({ type: 'GO_TO_STEP', index });
+      } else if (__DEV__) {
+        console.warn(
+          `[Sherpa] goTo: step "${String(stepIndexOrName)}" not found in tour "${activeTourId}".`
+        );
+      }
     },
-    [dispatch]
+    [dispatch, registryRef, activeTourId]
   );
 
   const pause = useCallback(() => {
