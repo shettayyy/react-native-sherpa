@@ -88,6 +88,11 @@ export function Overlay({
   }
 
   if (CustomOverlay !== undefined) {
+    if (__DEV__ && CustomTooltip !== undefined) {
+      console.warn(
+        '[Sherpa] TooltipComponent is ignored when a custom OverlayComponent is provided.'
+      );
+    }
     return (
       <CustomOverlay
         measurement={measurement}
