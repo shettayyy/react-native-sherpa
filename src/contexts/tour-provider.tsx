@@ -78,6 +78,14 @@ export function TourProvider({
       dispatch({ type: 'SET_TOTAL_STEPS', totalSteps: tourSteps.length });
     }
 
+    if (
+      typeof state.currentStepIndex !== 'number' ||
+      state.currentStepIndex < 0 ||
+      state.currentStepIndex >= tourSteps.length
+    ) {
+      return;
+    }
+
     const step = tourSteps[state.currentStepIndex];
     if (step === undefined) {
       return;
