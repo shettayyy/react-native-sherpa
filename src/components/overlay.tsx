@@ -7,6 +7,7 @@ import type {
   SherpaTheme,
 } from '@sherpa/types';
 import { useTourActions } from '@sherpa/hooks';
+import { resolveTooltipPlacement } from '@sherpa/utilities';
 import { AnimatedMask } from './animated-mask';
 import { Tooltip } from './tooltip';
 
@@ -32,10 +33,15 @@ function DefaultOverlay({
   const overlayColor = theme.overlay.color;
   const overlayOpacity = theme.overlay.opacity;
 
+  const placement = resolveTooltipPlacement(measurement, {
+    width: canvasWidth,
+    height: canvasHeight,
+  });
+
   const tooltipProps = {
     measurement,
     currentStep,
-    placement: 'bottom' as const,
+    placement,
     stepIndex,
     totalSteps,
     onNext: next,
