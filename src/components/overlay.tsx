@@ -6,7 +6,6 @@ import type {
   TooltipComponent,
   SherpaTheme,
 } from '@sherpa/types';
-import { resolvePointerEvents } from '@sherpa/utilities';
 import { useTourActions } from '@sherpa/hooks';
 import { AnimatedMask } from './animated-mask';
 import { Tooltip } from './tooltip';
@@ -32,7 +31,6 @@ function DefaultOverlay({
 
   const overlayColor = theme.overlay.color;
   const overlayOpacity = theme.overlay.opacity;
-  const pointerEvents = resolvePointerEvents(currentStep.interactionMode);
 
   const tooltipProps = {
     measurement,
@@ -47,7 +45,7 @@ function DefaultOverlay({
   };
 
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents={pointerEvents}>
+    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
       <AnimatedMask
         measurement={measurement}
         currentStep={currentStep}

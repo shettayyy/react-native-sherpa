@@ -20,6 +20,7 @@ export default defineConfig([
       'lib/**',
       'example/.expo/**',
       'example/node_modules/**',
+      '**/expo-env.d.ts',
     ],
   },
   ...reactNativeConfig

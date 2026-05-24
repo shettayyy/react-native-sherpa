@@ -6,6 +6,7 @@ import type {
   TourStatus,
   SherpaTheme,
   StepRegistration,
+  InteractionMode,
 } from '@sherpa/types';
 import { useOverlayAnimation } from '@sherpa/hooks';
 
@@ -26,6 +27,10 @@ type AnimatedMaskProps = {
   overlayOpacity: number;
   theme: SherpaTheme;
 };
+
+function resolvePointerEvents(mode: InteractionMode): 'none' | 'box-only' {
+  return mode === 'blocking' ? 'box-only' : 'none';
+}
 
 export function AnimatedMask({
   measurement,
@@ -57,8 +62,13 @@ export function AnimatedMask({
     theme,
   });
 
+  const maskPointerEvents = resolvePointerEvents(currentStep.interactionMode);
+
   return (
-    <Animated.View style={animatedBackdropStyle}>
+    <Animated.View
+      style={animatedBackdropStyle}
+      pointerEvents={maskPointerEvents}
+    >
       <Svg
         width={canvasWidth}
         height={canvasHeight}
